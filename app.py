@@ -1,49 +1,20 @@
 #!/usr/bin/env python
 
 import sqlite3
-import json
 from flask import Flask, render_template, request, jsonify, g
-
+from database import init_db, db_session
+from models import LikedPhoto
 import pathfinder
 
-DATABASE = "flickr_gallery.db"
+init_db()
+
 app = Flask(__name__)
 
 
-def get_db():
-    """Gets the existing database connection or create a new one if none is available."""
-    db = getattr(g, "_database", None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-    db.row_factory = sqlite3.Row
-
-    return db
-
-
-
 @app.teardown_appcontext
-def close_connection(exception):
+def shutdown_session(exception=None):
     """Automatically closes the databases connection."""
-    db = getattr(g, "_database", None)
-    if db is not None:
-        db.close()
-
-
-def init_db():
-    """Creates a SQLite 3 database defined in schema.sql file."""
-    with app.app_context():
-        db = get_db()
-        with app.open_resource("schema.sql", mode="r") as f:
-            db.cursor().executescript(f.read())
-        db.commit()
-
-
-def query_db(query, args=(), one=False):
-    """Helper function to facilitate execution of simple queries."""
-    cur = get_db().execute(query, args)
-    rv = cur.fetchall()
-    cur.close()
-    return (rv[0] if rv else None) if one else rv
+    db_session.remove()
 
 
 @app.route("/", methods=["GET"])
@@ -57,16 +28,16 @@ def get_liked_photos():
     """Retrieves the list of liked photos from the database."""
     user_id = request.args.get("user", "__default__")
 
-    rows = query_db("SELECT rowid, * FROM liked_photos WHERE user_id = ? ORDER by rowid ASC", [user_id])
+    rows = LikedPhoto.query.filter(LikedPhoto.user_id == user_id).all()
     response = {"status": True, "photos": []}
     for r in rows:
         data = {
-            "seq": r['rowid'],
-            "title": r['title'],
-            "author": r['author'],
-            "photoUrl": r['photo_url'],
-            "link": r['link'],
-            "tags": r['tags']
+            "seq": r.id,
+            "title": r.title,
+            "author": r.author,
+            "photoUrl": r.photo_url,
+            "link": r.link,
+            "tags": r.tags
         }
         response["photos"].append(data)
 
@@ -80,32 +51,26 @@ def toggle_favorite():
     user_id = request_data["user"]
     photo_url = request_data["photo"]["photoUrl"]
 
-    data = query_db("SELECT * FROM liked_photos WHERE photo_url = ? AND user_id = ?",
-                    [photo_url, user_id], True)
-    if data is None:
-        insert_data = [
-            request_data["photo"]["title"],
-            request_data["photo"]["author"],
-            request_data["photo"]["photoUrl"],
-            request_data["photo"]["link"],
-            request_data["photo"]["tags"],
-            user_id
-        ]
+    photo = LikedPhoto.query.filter(LikedPhoto.photo_url == photo_url and
+                                   LikedPhoto.user_id == user_id).first()
+    if photo is None:
+        
+        lp = LikedPhoto(
+            title = request_data["photo"]["title"],
+            author = request_data["photo"]["author"],
+            photo_url = request_data["photo"]["photoUrl"],
+            link = request_data["photo"]["link"],
+            tags = request_data["photo"]["tags"],
+            user_id = user_id 
+        )
+        
+        db_session.add(lp)
+        db_session.commit()
 
-        # We cannot use the query_db function here as we need to get the
-        #  last inserted id and return it in the response.
-        conn = get_db()
-        cur = conn.cursor()
-        cur.execute("INSERT INTO liked_photos (title, author, photo_url, link, tags, user_id) \
-                     VALUES (?, ?, ?, ?, ?, ?)", insert_data)
-        last_id = cur.lastrowid
-        conn.commit()
-        cur.close()
-
-        response = { "status": True, "action": "liked", "id": last_id }
+        response = { "status": True, "action": "liked", "id": lp.id }
     else:
-        query_db("DELETE FROM liked_photos WHERE photo_url = ? AND user_id = ? ", [photo_url, user_id])
-        get_db().commit()
+        db_session.delete(photo)
+        db_session.commit()
 
         response = { "status": True, "action": "unliked" }
 

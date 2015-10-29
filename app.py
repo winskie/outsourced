@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-import sqlite3
-from flask import Flask, render_template, request, jsonify, g
+from flask import Flask, render_template, request, jsonify
 from database import init_db, db_session
 from models import LikedPhoto
 import pathfinder
@@ -113,4 +112,4 @@ def find_path():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host='0.0.0.0')
+    app.run()

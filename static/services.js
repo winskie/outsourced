@@ -90,8 +90,8 @@ angular.module("Services", [])
     }
 ])
 
-.factory("Flickr", ["$http", "$q",
-    function($http, $q) {
+.factory("Flickr", ["$http", "$q", "Utilities",
+    function($http, $q, Utilities) {
         return {
             api: "https://api.flickr.com/services/feeds/photos_public.gne",
             currentTag: undefined,
@@ -175,7 +175,8 @@ angular.module("Services", [])
                     method: "GET",
                     url: "api/photo/liked_photos",
                     params: {
-                        "user": user
+                        "user": user,
+                        "nonce": Utilities.randomString()
                     }
                 }).then(
                     function(response) {

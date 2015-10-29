@@ -1,0 +1,88 @@
+body {
+	overflow-y: scroll;
+    background: linear-gradient(#ffffff 20%, #dadad8);
+    background-attachment: fixed;
+    padding: 55px 10px 10px 20px; 
+}
+
+h1 {
+	font-weight: bold;
+}
+
+.fg-navbar {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.fg-app-title {
+    color: #ffffff;
+    font-weight: bold;
+}
+
+.fg-section-title {
+    margin: 0;
+    font-weight: bold;
+    color: cadetblue;
+}
+
+.fg-text-overflow {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.fg-query-term {
+    color: green;
+}
+
+div.fg-content {
+	padding-top: 75px;
+}
+
+.col-centered {
+	float: none;
+	margin: 0 auto;
+	display: inline-block;
+}
+
+div.fg-photo {
+	height: 340px;
+	width: 250px;
+	text-align: center;
+	padding: 5px 5px 95px 5px;
+	margin: 13px 10px;
+	position: relative;
+	overflow: hidden;
+	background-color: #ffffff;
+	border: 1px solid #f1f1f1;
+	box-shadow: 2px 3px 7px rgba(0,0,0,0.25);
+}
+
+div.fg-photo img {
+	height: 100%;
+	width: 100%;
+	object-fit: cover;
+	background-clip: #0d0d0d;
+}
+
+div.fg-photo > div.fg-img-info {
+	text-align: left;
+	padding: 5px;
+}
+
+h5.fg-img-title {
+    color: #3d3d4c;
+	font-weight: bold;
+	margin: 5px 0 2px 0;
+	white-space: nowrap;
+}
+
+p.fg-author {
+    color: grey;
+    font-style: italic;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+i.favorite {
+    color: red !important;
+}

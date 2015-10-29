@@ -1,6 +1,6 @@
 angular.module("Services", [])
 
-.factory('Utilities', [
+.factory("Utilities", [
     function() {
         return {
             randomString: function(length) {
@@ -18,7 +18,7 @@ angular.module("Services", [])
     }
 ])
 
-.factory('LocalStorage', ['$window',
+.factory('LocalStorage', ["$window",
     function($window) {
         return {
             set: function(key, value) {
@@ -36,8 +36,8 @@ angular.module("Services", [])
         }
     }
 ])
-.factory("Pathfinder", ["$http", "$q",
-    function($http, $q) {
+.factory("Pathfinder", ["$http", "$q", "Utilities",
+    function($http, $q, Utilities) {
         return {
             generateTerrain: function(cols, rows, minValue, maxValue) {
                 var deferred = $q.defer();
@@ -49,7 +49,8 @@ angular.module("Services", [])
                         "cols": cols,
                         "rows": rows,
                         "min": minValue,
-                        "max": maxValue
+                        "max": maxValue,
+                        "nonce": Utilities.randomString()
                     }
                 }).then(
                     function(response) {

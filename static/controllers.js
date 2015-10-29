@@ -228,7 +228,6 @@ angular.module("Controllers", ["Services"])
         }
 
         $scope.findPath = function() {
-            console.log($scope.grid);
             // Don't forget to clear the previous path data,
             // this is a brute force method and should be
             // replaced with a more efficient method

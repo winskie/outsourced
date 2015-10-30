@@ -35,7 +35,7 @@ angular.module("Controllers", ["Services"])
         $scope.title = "Photo Gallery";
         $scope.photos = [];
         $scope.likedPhotos = [];
-        $scope.query = undefined;
+        $scope.query = null;
         $scope.photosLoading = false;
         $scope.searchbox = "";
         $scope.view = "Public Feed";
@@ -74,21 +74,22 @@ angular.module("Controllers", ["Services"])
                 var query = $scope.searchbox;
                 if (query) {
                     $scope.view = "Search Result";
+                    $scope.query = query;
                     $scope.searchbox = null;
                     $scope.clearPhotos();
                     Flickr.getPhotos(query);
                 } else {
                     $scope.showPublicFeed();
                 }
-                $scope.query = query;
             }
         }
         
         // Switch to Public Feed view
         $scope.showPublicFeed = function(reload) {
             // Mandatory reload of public feed if coming from search result view
-            if ($scope.view == "Search Result") {
+            if ($scope.query) {
                 reload = true;
+                $scope.query = null;
             }
             
             $scope.view = "Public Feed";
@@ -138,9 +139,6 @@ angular.module("Controllers", ["Services"])
                             }
                         }
                     }
-                    
-                    
-                    
                 },
                 function(reason) {
                     console.error(reason);
